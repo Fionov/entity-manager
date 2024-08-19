@@ -9,7 +9,7 @@ use app\Interfaces\Data\UserInterface;
 use App\Models\AbstractModel;
 use App\Models\User;
 use App\Services\HistoryService;
-use App\Validators\Models\UserValidator;
+use App\Services\ValidatorMapperService;
 use PDO;
 use Psr\Log\LoggerInterface;
 
@@ -18,22 +18,19 @@ class UserRepository extends AbstractRepository
     /** @var \app\Interfaces\Data\UserInterface[] */
     private array $entities = [];
 
-    /** @var \App\Services\HistoryService */
-    private readonly HistoryService $historyService;
-
     /**
      * @param \Psr\Log\LoggerInterface|null $logger
      * @param \PDO|null $connection
-     * @param \App\Services\HistoryService|null $historyService
+     * @param \App\Services\HistoryService $historyService
+     * @param \App\Services\ValidatorMapperService $validatorMapperService
      */
     protected function __construct(
         ?LoggerInterface $logger = null,
         ?PDO $connection = null,
-        ?HistoryService $historyService = null,
+        private readonly HistoryService $historyService = new HistoryService(),
+        private readonly ValidatorMapperService $validatorMapperService = new ValidatorMapperService(),
     ) {
         parent::__construct(logger: $logger, connection: $connection);
-
-        $this->historyService = $historyService ?? new HistoryService();
     }
 
     /**
@@ -146,8 +143,8 @@ class UserRepository extends AbstractRepository
      */
     protected function validateFields(AbstractModel|UserInterface $model): void
     {
-        $userValidator = new UserValidator($model);
-        $userValidator->validate();
+        $validator = $this->validatorMapperService->getForModel($model);
+        $validator->validate();
     }
 
     /**
