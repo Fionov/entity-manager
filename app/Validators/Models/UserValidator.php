@@ -7,12 +7,13 @@ namespace App\Validators\Models;
 use App\Exceptions\IncorrectDataException;
 use App\Exceptions\NoSuchEntityException;
 use app\Interfaces\Data\UserInterface;
+use App\Interfaces\ValidatorInterface;
 use App\Repositories\ForbiddenEmailDomainRepository;
 
-class UserValidator
+class UserValidator implements ValidatorInterface
 {
     /** @var string */
-    private const NAME_PATTERN = '/[a-z0-9]{8,64}/';
+    private const NAME_PATTERN = '/^[a-z0-9]{8,64}$/';
 
     /** @var string[] */
     private const NAME_FORBIDDEN_WORDS = [
